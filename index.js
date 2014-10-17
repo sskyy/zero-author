@@ -1,60 +1,46 @@
-var config = require('./config')
+/**
+ * log user to node.
+ * @module author
+ */
 
+var _ = require('lodash')
 
-var userModule = {
-  models : require('./models'),
-  listen : require('./listen')(config),
-  //this will allow app global config overwrite
-  config : config,
-  route : {
-    "/user/count" : function( req, res, next){
-      userModule.dep.model.models['user'].count().then(function(total){
-        res.json({count:total})
+module.exports = {
+  listen : {},
+  expand: function( module){
+    var root = this
+    if( module.author ){
+      _.forEach( module.author, function( config,modelName ){
+        root.addListener( root.listen, modelName, config)
       })
-    },
-    "*" : {
-      "function" : function initSession(req,res,next){
-        //TODO only for dev
-        if( !req.session.user ){
-          userModule.dep.model.models['user'].count().then(function(total){
-            var skip = parseInt( total * Math.random())
-            userModule.dep.model.models['user'].find({limit:1,skip:skip}).then(function(users){
-//              console.log("====================setting session user===========", users[0].name)
-//              req.session.user = users[0]
-              next()
-            }).catch(function(err){
-              ZERO.error(err)
-              next()
-            })
-          })
-        }else{
-          next()
-        }
-
-
-
-
-        return
-
-//        if( req.session.user ){
-//          next()
-//        }else{
-//          //TODO only for dev
-//          userModule.dep.model.models['user'].find({limit:1}).then(function(users){
-//            req.session.user = users[0]
-//            next()
-//          }).catch(function(err){
-//            ZERO.error(err)
-//            next()
-//          })
-//        }
-
-      },
-      "order" : {first:true}
     }
+  },
+  addListener:function(  listeners, modelName, config){
+    var root = this
+    listeners[modelName+".create.before"] = function( val ){
+      var bus = this
+      //TODO allow user to specify which field to cache
 
+      ZERO.mlog("author","attaching user to node", bus.session("user"), val)
+
+      if( bus.session("user") ){
+        val.user = bus.session("user")
+        //expose for search
+        val.uid = val.user.id
+        return root.dep.model.models['user'].findOne({id:val.user.id}).then(function(user){
+          var updateObj = {}
+          if( user ){
+            updateObj.statistics = user.statistics || {}
+            updateObj.statistics[modelName] = (updateObj.statistics[modelName]||0)+1
+            return bus.fire("user.update",{id:val.user.id},updateObj)
+          }
+          return bus.error(406,'user not found')
+        })
+      }
+
+    }
+  },
+  bootstrap : function(){
+    this.dep.bus.expand( this )
   }
 }
-
-module.exports = userModule
-
