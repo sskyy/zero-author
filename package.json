@@ -1,12 +1,13 @@
 {
   "name": "zero-author",
   "version": "0.0.1",
-  "description" : "zero module",
-  "zero" : {
-    "dependencies" : {
-      "model":"zero-model^0.0.1",
-      "bus":"zero-bus^0.0.1"
-    }
+  "description": "zero module",
+  "zero": {
+    "dependencies": {
+      "model": "^0.0.1",
+      "bus": "^0.0.1"
+    },
+    "name": "author"
   },
-  "author" : "jiamiu"
+  "author": "jiamiu"
 }
