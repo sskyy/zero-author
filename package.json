@@ -1,7 +1,10 @@
 {
   "name": "zero-author",
-  "version": "0.0.6",
-  "description": "zero module",
+  "version": "0.0.7",
+  "keywords": [
+    "zero module"
+  ],
+  "description": "Automatically attach user infomation to node.",
   "zero": {
     "dependencies": {
       "model": "^0.0.1",
