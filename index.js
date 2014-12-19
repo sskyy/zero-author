@@ -23,8 +23,8 @@ module.exports = {
 
       ZERO.mlog("author","attaching user to node", bus.session("user"), val)
 
-      if( bus.session("user") ){
-        val.user = bus.session("user")
+      if( bus.session.user ){
+        val.user = bus.session.user
         //expose for search
         val.uid = val.user.id
         return root.dep.model.models['user'].findOne({id:val.user.id}).then(function(user){
