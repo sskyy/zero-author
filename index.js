@@ -21,7 +21,7 @@ module.exports = {
       var bus = this
       //TODO allow user to specify which field to cache
 
-      ZERO.mlog("author","attaching user to node", bus.session("user"), val)
+      ZERO.mlog("author","attaching user to node", bus.session.user, val)
 
       if( bus.session.user ){
         val.user = bus.session.user
