@@ -19,12 +19,12 @@ module.exports = {
     var root = this
     listeners[modelName+".create.before"] = function( val ){
       var bus = this
-      //TODO allow user to specify which field to cache
 
       ZERO.mlog("author","attaching user to node", bus.session.user, val)
 
       if( bus.session.user ){
-        val.user = bus.session.user
+        //TODO allow user to specify which field to cache
+        val.user = _.pick(bus.session.user,["id","name"])
         //expose for search
         val.uid = val.user.id
         return root.dep.model.models['user'].findOne({id:val.user.id}).then(function(user){
